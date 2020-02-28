@@ -1,0 +1,17 @@
+#!/usr/bin/env
+import Adafruit_DHT
+import MySQLdb
+
+sensor = Adafruit_DHT.DHT11
+pin = 4
+db = MySQLdb.connect("localhost", "root", "passwortfürmysql", Datenbankname")
+curs=db.cursor()
+
+try:
+   humdidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+   curs.execute ("INSERT INTO temperatur_tb (datum, uhrzeit, wert) VALUES (CURRENT_DATE(), CURRENT_TIME(), %.2f);" % temperature)
+   db.commit()
+   print("Done")
+except:
+   print("Error. Rolling Back")
+   db.rollback()
