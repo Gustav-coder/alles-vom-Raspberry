@@ -1,0 +1,92 @@
+#Light Sensor
+import board
+import busio
+import adafruit_tsl2591
+i2c = busio.I2C(board.SCL, board.SDA)
+sensor = adafruit_tsl2591.TSL2591(i2c)
+
+
+
+#Code für Temp_Logger
+#!/usr/bin/env
+import Adafruit_DHT
+import MySQLdb
+
+sensor = Adafruit_DHT.DHT11
+pin = 4
+db = MySQLdb.connect("localhost", "root", "passwortfürmysql", Datenbankname")
+curs=db.cursor()
+
+try:
+   humdidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+   curs.execute ("INSERT INTO temperatur_tb (datum, uhrzeit, wert) VALUES (CURRENT_DATE(), CURRENT_TIME(), %.2f);" % temperature)
+   db.commit()
+   print("Done")
+except:
+   print("Error. Rolling Back")
+   db.rollback()
+
+
+
+#Temp_Logger
+#!/usr/bin/env 
+import Adafruit_DHT
+import MySQLdb
+
+sensor = Adafruit_DHT.DHT11
+pin = 4
+db = MySQLdb.connect("localhost", "root", "867_45?355!35", "testhaus")
+curs=db.cursor()
+
+try:
+   humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+   curs.execute ("INSERT INTO temperatur_tb (datum, uhrzeit, wert) VALUES (CURRENT_DATE(), CURRENT_TIME(), %.2f);" % temperature) 
+   db.commit()
+   print("Done")
+except:
+   print("Error. Rolling Back.")
+   db.rollback()
+
+
+
+
+#Thingspeak_Code
+import thingspeak
+import time 
+import Adafruit_DHT
+
+channel_id = 1003636
+write_key = 'XCRZ2B9JXOB6EFJ4'
+read_key = 'JLLZOLAQ4ZNTK451'    
+pin = 4
+sensor = Adafruit_DHT.DHT11
+
+def measure(channel):
+    try:
+        humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+        response= channel.update({'field1': temperature, 'field2': humidity})
+
+        read = channel.get({})
+        print("Read", read)
+
+    except:
+        print("connection failed")
+
+if __name__ == "__main__":
+    channel = thingspeak.Channel(id=channel_id, write_key=write_key, api_key=read_key)
+while True:
+    measure(channel)
+    time.sleep(30)
+
+
+
+#Weiterer Code
+
+
+   
+   
+   
+   
+   
+   
+   
